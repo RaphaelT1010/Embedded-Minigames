@@ -122,7 +122,6 @@
 #include "i2c_if.h"
 
 
-//Lab 3 Macros
 #define SPI_IF_BIT_RATE  100000
 #define IR_GPIO_PORT GPIOA0_BASE
 #define IR_GPIO_PIN 0x1
@@ -144,6 +143,9 @@ int displayToSendMessageIndex = 6;
 volatile int decodingIndex;
 volatile int systickexpired;
 volatile uint64_t ulsystick_delta_us;
+volatile int userTyping;
+volatile int playerScore;
+
 
 volatile int currentButton[EXPECTEDFALLINGEDGES];
 int zero[] = {1,1,0,0,1,0,0,0,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,1,1,1,1,1};
@@ -182,12 +184,11 @@ extern void (* const g_pfnVectors[])(void);
 
 
 
-//Lab 4 Macros
-#define DATE                17    /* Current Date */
-#define MONTH               5     /* Month 1-12 */
+#define DATE                1    /* Current Date */
+#define MONTH               6     /* Month 1-12 */
 #define YEAR                2024  /* Current year */
-#define HOUR                11   /* Time - hours */
-#define MINUTE              2   /* Time - minutes */
+#define HOUR                12   /* Time - hours */
+#define MINUTE              7   /* Time - minutes */
 #define SECOND              0     /* Time - seconds */
 
 
@@ -322,6 +323,7 @@ static void SysTickInit(void) {
 //!
 //*****************************************************************************
 
+
 static int set_time() {
     long retVal;
 
@@ -411,7 +413,9 @@ static int postCustomEmail(int iTLSSockID){
     char* pcBufHeaders;
     int lRetVal = 0;
 
-    const char* JSONtoSend = addTextToJSON(bufferToSend);
+    char textForJson[50];
+    sprintf(textForJson, "Name: %s Score %i", bufferToSend, playerScore);
+    const char* JSONtoSend = addTextToJSON(textForJson);
 
     //UART_PRINT("\r\n\nResulting JSON: \r\n\n");
     //UART_PRINT(JSONtoSend);
@@ -499,9 +503,6 @@ void sendEmail(){
         ERR_PRINT(lRetVal);
     }
     postCustomEmail(lRetVal);
-
-    sl_Stop(SL_STOP_TIMEOUT);
-    LOOP_FOREVER();
 }
 
 
@@ -661,7 +662,11 @@ static void leaderBoardTyping() {
         //Report("Mute\n\r");
         sendEmail();
         bufferIndex = 0;
-
+        fillScreen(BLACK);
+        setCursor(0,HEIGHT/2);
+        Outstr("Thanks for playing!");
+        MAP_UtilsDelay(30000000);
+        userTyping = 0;
 
 
     }else if (arraysEqual(currentButton,zero, EXPECTEDFALLINGEDGES)){
@@ -774,6 +779,12 @@ static void ButtonSignalHandler(void){
 
 void SpiConfig(){
     MAP_PRCMPeripheralClkEnable(PRCM_GSPI,PRCM_RUN_MODE_CLK);
+    InitTerm();
+
+        //
+        // Clearing the Terminal.
+        //
+        ClearTerm();
 
     MAP_PRCMPeripheralReset(PRCM_GSPI);
 
@@ -812,7 +823,6 @@ void seedRandomGenerator() {
     srand((unsigned int)time(0));
 }
 
-int playerScore;
 
 void updateScore(){
     setTextColorTransparent(WHITE);
@@ -1120,6 +1130,8 @@ void memoryGame(){
                 drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
                 if (round0[answerTracker] == 1){
                     playerScore += 100;
+                    correctAnswers +=1;
+
                 }
                 else{
                     playerScore -= 100;
@@ -1366,9 +1378,6 @@ void memoryGame(){
 
     }
 
-
-
-
     char correctStr[50];
     sprintf(correctStr, "%i/15", correctAnswers);
     setCursor(WIDTH/2-12,HEIGHT/2);
@@ -1376,6 +1385,142 @@ void memoryGame(){
 
     MAP_UtilsDelay(20000000);
     fillScreen(BLACK);
+
+
+
+}
+
+void treasureHunt(){
+
+    fillScreen(BLACK);
+    setCursor(19, 0);
+    Outstr("Treasure Hunt!");
+    updateScore();
+
+    int treasureX = generateRandomNumber(0,128);
+    int treasureY = generateRandomNumber(8,120);
+    int timesWon = 0;
+    int numberofDigs = 0;
+    UART_PRINT("%i, %i", treasureX, treasureY);
+
+
+    int ballX = WIDTH/2;
+    int ballY = HEIGHT/2;
+
+    while (timesWon != 3){ //Must win 3 times
+        drawBall(ballX,ballY);
+        unsigned char oldX = ballX;
+        unsigned char oldY = ballY;
+
+        I2C_IF_Write(dvcAdr,&dvcRegOffSetX,1,0);
+        I2C_IF_Read(dvcAdr, &rdDataBufX[0], 1);
+        int dx = calculateDelta(rdDataBufX[0]);
+
+
+        I2C_IF_Write(dvcAdr,&dvcRegOffSetY,1,0);
+        I2C_IF_Read(dvcAdr, &rdDataBufY[0], 1);
+        int dy = calculateDelta(rdDataBufY[0]);
+
+
+        ballX = ballX + dy;
+        ballY = ballY + dy;
+
+        ballX = ballX + dx;
+        if(ballX > WIDTH - BALLRADIUS)
+            ballX = WIDTH - BALLRADIUS;
+        if(ballX < BALLRADIUS)
+            ballX= BALLRADIUS;
+        if(ballY > HEIGHT - 12 - BALLRADIUS)
+            ballY = HEIGHT - 12 - BALLRADIUS;
+        if(ballY < BALLRADIUS + 12)
+            ballY = BALLRADIUS + 12;
+
+        //Erasing
+        eraseBall(oldX, oldY);
+
+        int eraseUp;
+        int eraseDown;
+        int eraseRight;
+        int eraseLeft;
+
+        if (decodingIndex == EXPECTEDFALLINGEDGES){
+            decodingIndex = 0;
+            eraseUp = 0;
+            eraseDown = 0;
+            eraseRight = 0;
+            eraseLeft = 0;
+            SysTickDisable();
+            GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
+            int ButtonResult = evaluateCapturedPulses();
+
+            if (ButtonResult == 11){
+                numberofDigs += 1;
+                if (ballX > treasureX - 13 && ballX < treasureX + 13 && ballY > treasureY - 13 && ballY < treasureY + 13){
+                    playerScore += 500;
+                    updateScore();
+                    treasureX = generateRandomNumber(0,128);
+                    treasureY = generateRandomNumber(8,120);
+                    drawChar(104 + (8 * timesWon), 0, '|', WHITE, BLACK, 1);
+                    timesWon += 1;
+
+                } else{
+                    if (ballX <= treasureX - 13){
+                        drawChar(ballX + 16,ballY,26,WHITE,BLACK,2); //Right
+                        eraseRight = 1;
+                    }
+
+                    if (ballX >= treasureX + 13){
+                        drawChar(ballX - 16,ballY,27,WHITE,BLACK,2); //Left
+                        eraseLeft = 1;
+                    }
+
+                    if (ballY <= treasureY - 13){
+                        drawChar(ballX,ballY + 16,25,WHITE,BLACK,2); //Down
+                        eraseDown = 1;
+
+                    }
+
+                    if (ballY >= treasureY + 13){
+                        drawChar(ballX,ballY - 16,24,WHITE,BLACK,2); //Up
+                        eraseUp = 1;
+
+                    }
+
+                    MAP_UtilsDelay(20000000);
+
+                    if (eraseRight){
+                        drawChar(ballX + 16,ballY,26,BLACK,BLACK,2);
+                    }
+
+                    if (eraseLeft){
+                        drawChar(ballX - 16,ballY,27,BLACK,BLACK,2);
+
+                    }
+
+                    if (eraseDown){
+                        drawChar(ballX,ballY + 16, 25,BLACK,BLACK,2);
+
+                    }
+
+                    if (eraseUp){
+                        drawChar(ballX,ballY - 16, 24,BLACK,BLACK,2);
+                    }
+                    playerScore -= 100;
+                    updateScore();
+                }
+            }
+        }
+    }
+
+    fillScreen(BLACK);
+
+    char correctStr[50];
+    sprintf(correctStr, "Took %i digs to find", numberofDigs);
+    setCursor(0,HEIGHT/2);
+    Outstr(correctStr);
+    setCursor(0, HEIGHT/2 + 8);
+    Outstr("3 treasures");
+    MAP_UtilsDelay(30000000);
 
 
 
@@ -1394,35 +1539,119 @@ void leaderBoardSubmission(){
     char scoreStr[50];
     sprintf(scoreStr, "Score: %i", playerScore);
     Outstr(scoreStr);
+    userTyping = 1;
+    displayToSendMessageIndex = 6;
 
+    while (userTyping) {
 
-    while (1) {
+        if (decodingIndex == EXPECTEDFALLINGEDGES){
+            decodingIndex = 0;
+            SysTickDisable();
+            GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
+            leaderBoardTyping();
+        }
 
-          if (decodingIndex == EXPECTEDFALLINGEDGES){
-              decodingIndex = 0;
-              SysTickDisable();
-              GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
-              leaderBoardTyping();
-          }
+        if (systickexpired == 1 && currentCharacter != '\0'){
+            addToBuf();
+            buttonpresses = 0;
+        }
 
-          if (systickexpired == 1 && currentCharacter != '\0'){
-              addToBuf();
-              buttonpresses = 0;
-          }
+    }
 
-      }
+    //End of program
+    fillScreen(BLACK);
 
 
 
 }
 
 
+void createControllerLogo(){
+    fillRect(12,24, 6, 6, WHITE);
+    fillRect(18,18, 6, 6, WHITE);
+    fillRect(24,12, 6, 6, WHITE);
+    fillRect(30,12, 6, 6, WHITE);
+    fillRect(36,12, 6, 6, WHITE);
+    fillRect(42,12, 6, 6, WHITE);
+    fillRect(48,12, 6, 6, WHITE);
+    fillRect(54,12, 6, 6, WHITE);
+    fillRect(60,12, 6, 6, WHITE);
+    fillRect(66,12, 6, 6, WHITE);
+    fillRect(72,12, 6, 6, WHITE);
+    fillRect(78,12, 6, 6, WHITE);
+    fillRect(84,12, 6, 6, WHITE);
+    fillRect(90,12, 6, 6, WHITE);
+    fillRect(96,12, 6, 6, WHITE);
+    fillRect(102,18, 6, 6, WHITE);
+    fillRect(108,24, 6, 6, WHITE);
+    fillRect(12,30, 6, 6, WHITE);
+    fillRect(12,36, 6, 6, WHITE);
+    fillRect(12,42, 6, 6, WHITE);
+    fillRect(12,48, 6, 6, WHITE);
+    fillRect(12,54, 6, 6, WHITE);
+    fillRect(18,60, 6, 6, WHITE);
+    fillRect(24,66, 6, 6, WHITE);
+    fillRect(108,30, 6, 6, WHITE);
+    fillRect(108,36, 6, 6, WHITE);
+    fillRect(108,42, 6, 6, WHITE);
+    fillRect(108,48, 6, 6, WHITE);
+    fillRect(108,54, 6, 6, WHITE);
+    fillRect(102,60, 6, 6, WHITE);
+    fillRect(96,66, 6, 6, WHITE);
+    fillRect(30,66, 6, 6, WHITE);
+    //fillRect(36,66, 6, 6, WHITE);
+    fillRect(90,66, 6, 6, WHITE);
+    //fillRect(84,66, 6, 6, WHITE;
+    fillRect(36,60, 6, 6, WHITE);
+    fillRect(42,54, 6, 6, WHITE);
+    fillRect(84,60, 6, 6, WHITE);
+    fillRect(78,54, 6, 6, WHITE);
+    fillRect(42,54, 6, 6, WHITE);
+    fillRect(48,54, 6, 6, WHITE);
+    fillRect(54,54, 6, 6, WHITE);
+    fillRect(60,54, 6, 6, WHITE);
+    fillRect(66,54, 6, 6, WHITE);
+    fillRect(72,54, 6, 6, WHITE);
+    fillRect(78,54, 6, 6, WHITE);
+    fillRect(90,36, 6, 6, RED);
+    fillRect(72,36, 6, 6, GREEN);
+    fillRect(48,36, 6, 6, YELLOW);
+    fillRect(30,36, 6, 6, BLUE);
+}
+
 void initMainMenu(){
     fillScreen(BLACK);
-    Outstr("Play Game");
-    drawChar(54, 0, '<', WHITE, BLACK, 1);
-    setCursor(0,20);
-    Outstr("View Leaderboard");
+
+
+
+    createControllerLogo();
+
+    setCursor(18, HEIGHT - 50);
+    setTextSize(1);
+    Outstr("Embedded Games");
+
+
+
+
+    setTextSize(1);
+    setCursor(0,HEIGHT - 35);
+    Outstr("Play Games");
+    drawChar(60, HEIGHT - 35, '<', WHITE, BLACK, 1);
+    setCursor(0,HEIGHT - 27);
+    Outstr("How to Play");
+    setCursor(0,HEIGHT - 16);
+    Outstr("2");
+    drawChar(8, HEIGHT - 16, 24, WHITE, BLACK, 1);
+
+    setCursor(0,HEIGHT - 8);
+    Outstr("8");
+    drawChar(8, HEIGHT - 8, 25, WHITE, BLACK, 1);
+
+    setCursor(WIDTH - 72,HEIGHT - 12);
+    Outstr("Mute = Enter");
+
+    setCursor(0,0);
+
     decodingIndex = 0;
     int mainMenuIndex = 0;
     playerScore = 0;
@@ -1437,13 +1666,13 @@ void initMainMenu(){
                 //Must change this if we have more options
                 if (mainMenuIndex == 0){
                     mainMenuIndex = 1;
-                    drawChar(54, 0, '<', BLACK, BLACK, 1);
-                    drawChar(96, 20, '<', WHITE, BLACK, 1);
+                    drawChar(60, HEIGHT - 35, '<', BLACK, BLACK, 1);
+                    drawChar(66, HEIGHT - 27, '<', WHITE, BLACK, 1);
 
                 } else{
                     mainMenuIndex = 0;
-                    drawChar(96, 20, '<', BLACK, BLACK, 1);
-                    drawChar(54, 0, '<', WHITE, BLACK, 1);
+                    drawChar(66, HEIGHT - 27, '<', BLACK, BLACK, 1);
+                    drawChar(60, HEIGHT - 35, '<', WHITE, BLACK, 1);
                 }
 
             }
@@ -1453,13 +1682,15 @@ void initMainMenu(){
                     accelCarMinigame();
                     passwordMinigame();
                     memoryGame();
+                    treasureHunt();
                     leaderBoardSubmission();
 
 
                 }
                 else if (mainMenuIndex == 1){
                     //View leaderboard logic
-                    UART_PRINT("View leaderboard logic");
+
+                    viewInstructions();
                 }
             }
 
@@ -1473,6 +1704,70 @@ void initMainMenu(){
 }
 
 
+void viewInstructions(){
+
+    fillScreen(BLACK);
+    setCursor(0,HEIGHT - 8);
+    Outstr("Main Menu");
+    drawChar(0,HEIGHT - 16,27,WHITE,BLACK,1);
+    drawChar(8,HEIGHT - 16,'0',WHITE,BLACK,1);
+
+    setCursor(0,0);
+    setTextColorTransparent(YELLOW);
+    Outstr("Dodge the cars!");
+    setCursor(0,8);
+    setTextColorTransparent(WHITE);
+    Outstr("Tilt accelerometer");
+    setCursor(0,16);
+    Outstr("up/down to dodge cars");
+
+    setCursor(0,24);
+    setTextColorTransparent(YELLOW);
+    Outstr("Guess the code");
+    setCursor(0,32);
+    setTextColorTransparent(WHITE);
+    Outstr("Mute/Last Left/Right");
+    setCursor(0,40);
+    Outstr("0 enter 1-9 input");
+
+    setCursor(0,48);
+    setTextColorTransparent(YELLOW);
+    Outstr("Memorize arrows");
+    setCursor(0,56);
+    setTextColorTransparent(WHITE);
+    Outstr("Up=2 Down=8");
+    setCursor(0,64);
+    Outstr("Left=4 Right=6");
+
+    setCursor(0,72);
+    setTextColorTransparent(YELLOW);
+    Outstr("Treasure Hunt!");
+    setCursor(0,80);
+    setTextColorTransparent(WHITE);
+    Outstr("Tilt accelerometer");
+    setCursor(0,88);
+    Outstr("Mute to scan");
+
+
+    while (1){
+        if (decodingIndex == EXPECTEDFALLINGEDGES){
+            decodingIndex = 0;
+            SysTickDisable();
+            GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
+            int ButtonResult = evaluateCapturedPulses();
+
+            if (ButtonResult == 0){
+                initMainMenu();
+            }
+        }
+
+
+    }
+}
+
+
+
+
 void main() {
     //
     // Initialize board configuration
@@ -1480,23 +1775,25 @@ void main() {
     BoardInit();
 
     PinMuxConfig();
+
     I2C_IF_Open(I2C_MASTER_MODE_FST);
 
     SpiConfig();
 
     SysTickInit();
 
-    InitTerm();
-    ClearTerm();
-
     Adafruit_Init();
+
     HandlerConfig();
+
     seedRandomGenerator();
+
     initMainMenu();
 
 
 
 }
+
 //*****************************************************************************
 //
 // Close the Doxygen group.
