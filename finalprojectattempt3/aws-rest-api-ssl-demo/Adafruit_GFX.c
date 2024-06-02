@@ -359,6 +359,47 @@ void fillTriangle ( int x0, int y0,
     drawFastHLine(a, y, b-a+1, color);
   }
 }
+
+// Draw a goal
+void drawGoalBottom(int x, int y,
+                int w, int h,
+                unsigned int color) {
+  //drawFastHLine(x, y, w, color);
+  drawFastHLine(x, y+h-1, w, color);
+  drawFastVLine(x, y, h, color);
+  drawFastVLine(x+w-1, y, h, color);
+}
+
+// Draw a goal
+void drawGoalTop(int x, int y,
+                int w, int h,
+                unsigned int color) {
+  drawFastHLine(x, y, w, color);
+  //drawFastHLine(x, y+h-1, w, color);
+  drawFastVLine(x, y, h, color);
+  drawFastVLine(x+w-1, y, h, color);
+}
+
+// Draw a goal
+void drawGoalLeft(int x, int y,
+                int w, int h,
+                unsigned int color) {
+  drawFastHLine(x, y, w, color);
+  drawFastHLine(x, y+h-1, w, color);
+  drawFastVLine(x, y, h, color);
+  //drawFastVLine(x+w-1, y, h, color);
+}
+
+// Draw a goal
+void drawGoalRight(int x, int y,
+                int w, int h,
+                unsigned int color) {
+  drawFastHLine(x, y, w, color);
+  drawFastHLine(x, y+h-1, w, color);
+  //drawFastVLine(x, y, h, color);
+  drawFastVLine(x+w-1, y, h, color);
+}
+
 /*
 void drawBitmap(int x, int y,
 			      const unsigned char *bitmap, int w, int h,
