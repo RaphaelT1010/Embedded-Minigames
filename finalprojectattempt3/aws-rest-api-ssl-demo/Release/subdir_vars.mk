@@ -13,7 +13,6 @@ C_SRCS += \
 ../Adafruit_OLED.c \
 ../i2c_if.c \
 ../main.c \
-../oled_test.c \
 ../pin_mux_config.c \
 ../uart_if.c 
 
@@ -22,7 +21,6 @@ C_DEPS += \
 ./Adafruit_OLED.d \
 ./i2c_if.d \
 ./main.d \
-./oled_test.d \
 ./pin_mux_config.d \
 ./uart_if.d 
 
@@ -31,7 +29,6 @@ OBJS += \
 ./Adafruit_OLED.obj \
 ./i2c_if.obj \
 ./main.obj \
-./oled_test.obj \
 ./pin_mux_config.obj \
 ./uart_if.obj 
 
@@ -40,7 +37,6 @@ OBJS__QUOTED += \
 "Adafruit_OLED.obj" \
 "i2c_if.obj" \
 "main.obj" \
-"oled_test.obj" \
 "pin_mux_config.obj" \
 "uart_if.obj" 
 
@@ -49,7 +45,6 @@ C_DEPS__QUOTED += \
 "Adafruit_OLED.d" \
 "i2c_if.d" \
 "main.d" \
-"oled_test.d" \
 "pin_mux_config.d" \
 "uart_if.d" 
 
@@ -58,7 +53,6 @@ C_SRCS__QUOTED += \
 "../Adafruit_OLED.c" \
 "../i2c_if.c" \
 "../main.c" \
-"../oled_test.c" \
 "../pin_mux_config.c" \
 "../uart_if.c" 
 

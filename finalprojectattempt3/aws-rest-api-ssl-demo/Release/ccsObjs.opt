@@ -2,7 +2,6 @@
 "./Adafruit_OLED.obj"
 "./i2c_if.obj"
 "./main.obj"
-"./oled_test.obj"
 "./pin_mux_config.obj"
 "./uart_if.obj"
 "./utils/network_utils.obj"

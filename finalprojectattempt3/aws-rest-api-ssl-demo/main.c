@@ -1,61 +1,3 @@
-//*****************************************************************************
-//
-// Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
-//
-//
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions
-//  are met:
-//
-//    Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//
-//    Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the
-//    distribution.
-//
-//    Neither the name of Texas Instruments Incorporated nor the names of
-//    its contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-//  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-//  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//*****************************************************************************
-
-
-//*****************************************************************************
-//
-// Application Name     -   SSL Demo
-// Application Overview -   This is a sample application demonstrating the
-//                          use of secure sockets on a CC3200 device.The
-//                          application connects to an AP and
-//                          tries to establish a secure connection to the
-//                          Google server.
-// Application Details  -
-// docs\examples\CC32xx_SSL_Demo_Application.pdf
-// or
-// http://processors.wiki.ti.com/index.php/CC32xx_SSL_Demo_Application
-//
-//*****************************************************************************
-
-
-//*****************************************************************************
-//
-//! \addtogroup ssl
-//! @{
-//
-//*****************************************************************************
 
 #include <stdio.h>
 #include <stdlib.h>  // for rand, srand
@@ -138,8 +80,6 @@ int bufferIndex = 0;
 int sendBufferHeight = 16;
 int displayToSendMessageIndex = 6;
 
-
-
 volatile int decodingIndex;
 volatile int systickexpired;
 volatile uint64_t ulsystick_delta_us;
@@ -205,16 +145,6 @@ extern void (* const g_pfnVectors[])(void);
 #define CLHEADER1 "Content-Length: "
 #define CLHEADER2 "\r\n\r\n"
 
-#define DATA1 "{" \
-        "\"state\": {\r\n"                                              \
-            "\"desired\" : {\r\n"                                       \
-                "\"var\" :\""                                           \
-                "Hello phone, "                                     \
-                "message from CC3200 via AWS IoT!"                  \
-                "\"\r\n"                                            \
-                "}"                                                         \
-                "}"                                                             \
-                "}\r\n\r\n"
 
 
 //*****************************************************************************
@@ -387,19 +317,16 @@ const char* addTextToJSON(const char* inputText) {
 
 
 
-    // Calculate the required length for the new JSON string
     size_t templateLen = strlen(templateJSON);
     size_t inputLen = strlen(inputText);
-    size_t newJSONLen = templateLen + inputLen + 1; // +1 for null terminator
+    size_t newJSONLen = templateLen + inputLen + 1;
 
-    // Allocate memory for the new JSON string
     char* newJSON = (char*)malloc(newJSONLen);
     if (newJSON == NULL) {
         fprintf(stderr, "Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
 
-    // Format the new JSON string
     snprintf(newJSON, newJSONLen, templateJSON, inputText);
 
     return newJSON;
@@ -414,11 +341,9 @@ static int postCustomEmail(int iTLSSockID){
     int lRetVal = 0;
 
     char textForJson[50];
-    sprintf(textForJson, "Name: %s Score %i", bufferToSend, playerScore);
+    sprintf(textForJson, "Player: %s Score: %i", bufferToSend, playerScore);
     const char* JSONtoSend = addTextToJSON(textForJson);
 
-    //UART_PRINT("\r\n\nResulting JSON: \r\n\n");
-    //UART_PRINT(JSONtoSend);
 
     pcBufHeaders = acSendBuff;
     strcpy(pcBufHeaders, POSTHEADER);
@@ -481,23 +406,17 @@ static int postCustomEmail(int iTLSSockID){
 void sendEmail(){
     Report("\n\n\rSending email!\n\n\r");
 
-    //Report("\n\r This is your email: ");
-    //Report(bufferToSend);
     long lRetVal = -1;
 
-    // initialize global default app configuration
     g_app_config.host = SERVER_NAME;
     g_app_config.port = GOOGLE_DST_PORT;
 
-    //Connect the CC3200 to the local access point
     lRetVal = connectToAccessPoint();
-    //Set time so that encryption can be used
     lRetVal = set_time();
     if(lRetVal < 0) {
         UART_PRINT("Unable to set time in the device");
         LOOP_FOREVER();
     }
-    //Connect to the website with TLS encryption
     lRetVal = tls_connect();
     if(lRetVal < 0) {
         ERR_PRINT(lRetVal);
@@ -524,27 +443,22 @@ static void addToBuf(){
 static void leaderBoardTyping() {
 
     if (arraysEqual(currentButton, one, EXPECTEDFALLINGEDGES)){
-        //Report("One\n\r");
     }
     else if (arraysEqual(currentButton, two, EXPECTEDFALLINGEDGES)){
-        //Report("Two\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('a');
             currentCharacter = 'a';
         }
         else if (buttonpresses % 3 == 1){
-            //displayToSendMessageChar('b');
             displayToSendMessageChar('b');
             currentCharacter = 'b';
         } else if (buttonpresses % 3 == 2){
-            //displayToSendMessageChar('c');
             displayToSendMessageChar('c');
             currentCharacter = 'c';
         }
         buttonpresses = buttonpresses + 1;
 
     } else if (arraysEqual(currentButton,three, EXPECTEDFALLINGEDGES)){
-        //Report("Three\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('d');
             currentCharacter = 'd';
@@ -558,7 +472,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,four, EXPECTEDFALLINGEDGES)){
-        //Report("Four\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('g');
             currentCharacter = 'g';
@@ -572,7 +485,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,five, EXPECTEDFALLINGEDGES)){
-        //Report("Five\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('j');
             currentCharacter = 'j';
@@ -587,7 +499,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,six, EXPECTEDFALLINGEDGES)){
-        //Report("Six\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('m');
             currentCharacter = 'm';
@@ -601,7 +512,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,seven, EXPECTEDFALLINGEDGES)){
-        //Report("Seven\n\r");
         if (buttonpresses % 4 == 0){
             displayToSendMessageChar('p');
             currentCharacter = 'p';
@@ -618,7 +528,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,eight, EXPECTEDFALLINGEDGES)){
-        //Report("Eight\n\r");
         if (buttonpresses % 3 == 0){
             displayToSendMessageChar('t');
             currentCharacter = 't';
@@ -632,7 +541,6 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,nine, EXPECTEDFALLINGEDGES)){
-        //Report("Nine\n\r");
         if (buttonpresses % 4 == 0){
             displayToSendMessageChar('w');
             currentCharacter = 'w';
@@ -649,17 +557,14 @@ static void leaderBoardTyping() {
         }
         buttonpresses = buttonpresses + 1;
     } else if (arraysEqual(currentButton,last, EXPECTEDFALLINGEDGES) && currentCharacter == '\0'){
-        //Backspace
         if (bufferIndex != 0){
             displayToSendMessageIndex--;
             displayToSendMessageChar(' ');
-            //Pop the top member and decrement buffer index
             bufferToSend[bufferIndex - 1] = '\0';
             bufferIndex--;
         }
 
     } else if (arraysEqual(currentButton,mute, EXPECTEDFALLINGEDGES)){
-        //Report("Mute\n\r");
         sendEmail();
         bufferIndex = 0;
         fillScreen(BLACK);
@@ -670,11 +575,9 @@ static void leaderBoardTyping() {
 
 
     }else if (arraysEqual(currentButton,zero, EXPECTEDFALLINGEDGES)){
-        //Report("Zero\n\r");
         currentCharacter = ' ';
     }
     else{
-        //Report("Unrecognized Key\n\r");
         currentCharacter = '\0';
         buttonpresses = 0;
     }
@@ -682,7 +585,6 @@ static void leaderBoardTyping() {
     //Flush current button too to be safe
     int i = 0;
     for (i = 0; i < EXPECTEDFALLINGEDGES; i++) {
-        //-1 is neither a short or falling edge
         currentButton[i] = -1;
     }
 
@@ -732,10 +634,8 @@ static int evaluateCapturedPulses() {
         buttonpresses = 0;
     }
 
-    //Flush current button too to be safe
     int i = 0;
     for (i = 0; i < EXPECTEDFALLINGEDGES; i++) {
-        //-1 is neither a short or falling edge
         currentButton[i] = -1;
     }
 
@@ -743,9 +643,6 @@ static int evaluateCapturedPulses() {
 }
 
 static void decodeSignal(uint64_t tmp_delta_us, int count) {
-    //1s are encoded as a long amount of time from last falling edge
-    //0s are encoded as a short amount of time from last falling edge
-
     if(tmp_delta_us > 1200) {
 
         currentButton[count] = 1;
@@ -765,7 +662,7 @@ static void ButtonSignalHandler(void){
     if (ulStatus && IR_GPIO_PIN){
         tmp_delta_us = TICKS_TO_US(SYSTICK_RELOAD_VAL - MAP_SysTickValueGet());
 
-        if (tmp_delta_us > 600){ //Filter out some noise
+        if (tmp_delta_us > 600){
             decodeSignal(tmp_delta_us, decodingIndex);
             decodingIndex++;
             SysTickReset();
@@ -780,22 +677,13 @@ static void ButtonSignalHandler(void){
 void SpiConfig(){
     MAP_PRCMPeripheralClkEnable(PRCM_GSPI,PRCM_RUN_MODE_CLK);
     InitTerm();
-
-        //
-        // Clearing the Terminal.
-        //
-        ClearTerm();
+    ClearTerm();
 
     MAP_PRCMPeripheralReset(PRCM_GSPI);
 
-    //
-    // Reset SPI
-    //
     MAP_SPIReset(GSPI_BASE);
 
-    //
-    // Configure SPI interface
-    //
+
     MAP_SPIConfigSetExpClk(GSPI_BASE,MAP_PRCMPeripheralClockGet(PRCM_GSPI),
                            SPI_IF_BIT_RATE,SPI_MODE_MASTER,SPI_SUB_MODE_0,
                            (SPI_SW_CTRL_CS |
@@ -804,9 +692,7 @@ void SpiConfig(){
                                    SPI_CS_ACTIVEHIGH |
                                    SPI_WL_8));
 
-    //
-    // Enable SPI for communication
-    //
+
     MAP_SPIEnable(GSPI_BASE);
 }
 
@@ -1038,41 +924,31 @@ void memoryGame(){
     Outstr("Memorize arrows");
     updateScore();
 
-    //Up arrow, 0
-    //drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-    //Down arrow, 1
-    //drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-    //Left arrow, 2
-    //drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-    //Right arrow, 3
-    //drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-
-    int round0[3] = {generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3)};
-    int round1[5] = {generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3)};
-    int round2[7] = {generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3)};
+    //int round1[5] = {generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3)};
+    int roundAnswers[10] = {generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3),generateRandomNumber(0,3), generateRandomNumber(0,3), generateRandomNumber(0,3), generateRandomNumber(0,3)};
     int correctAnswers = 0;
 
-    //Round 1
+
     setCursor(0,3*HEIGHT/4);
     Outstr("In");
     setCursor(0,3*HEIGHT/4+8);
     Outstr("sequence...");
     int i = 0;
 
-    for (i = 0; i<3; i++){
-        if (round0[i] == 0){
+    for (i = 0; i<10; i++){
+        if (roundAnswers[i] == 0){
             drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
             MAP_UtilsDelay(10000000);
             drawChar(61,HEIGHT/4-8, 24,BLACK,BLACK,2);
-        } else if (round0[i] == 1){
+        } else if (roundAnswers[i] == 1){
             drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
             MAP_UtilsDelay(10000000);
             drawChar(61,3*HEIGHT/4-8, 25,BLACK,BLACK,2);
-        } else if (round0[i] == 2){
+        } else if (roundAnswers[i] == 2){
             drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
             MAP_UtilsDelay(10000000);
             drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
-        } else if (round0[i] == 3){
+        } else if (roundAnswers[i] == 3){
             drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
             MAP_UtilsDelay(10000000);
             drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
@@ -1085,6 +961,7 @@ void memoryGame(){
     setTextColorTransparent(BLACK);
     setCursor(0,3*HEIGHT/4+8);
     Outstr("sequence...");
+
 
     int acceptingUserInput = 1;
     int answerTracker = 0;
@@ -1097,118 +974,10 @@ void memoryGame(){
             int ButtonResult = evaluateCapturedPulses();
             int validAnswer = 1;
 
-            if (ButtonResult == 2){ //Up arrow
-                drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-                if (round0[answerTracker] == 0){
-                    playerScore += 100;
-                    correctAnswers +=1;
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 4){ //Left arrow
-                drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-                if (round0[answerTracker] == 2){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 6){ //Right arrow
-                drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-                if (round0[answerTracker] == 3){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 8){ //Down arrow
-                drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-                if (round0[answerTracker] == 1){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else{
-                validAnswer = 0;
-            }
-
-            if (validAnswer){
-                MAP_UtilsDelay(10000000);
-                updateScore();
-
-                //Erase whatever arrow was drawn
-                drawChar(61,HEIGHT/4-8, 24,BLACK,BLACK,2);
-                drawChar(61,3*HEIGHT/4-8, 25,BLACK,BLACK,2);
-                drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
-                drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
-                answerTracker += 1;
-                if (answerTracker == 3){
-                    acceptingUserInput = 0;
-                }
-            }
-
-        }
-
-
-    }
-
-    //Round 2
-    setCursor(0,3*HEIGHT/4);
-    Outstr("In");
-    setCursor(0,3*HEIGHT/4+8);
-    Outstr("sequence...");
-    i = 0;
-
-    for (i = 0; i<5; i++){
-        if (round1[i] == 0){
-            drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(61,HEIGHT/4-8, 24,BLACK,BLACK,2);
-        } else if (round1[i] == 1){
-            drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(61,3*HEIGHT/4-8, 25,BLACK,BLACK,2);
-        } else if (round1[i] == 2){
-            drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
-        } else if (round1[i] == 3){
-            drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
-        }
-        MAP_UtilsDelay(10000000);
-    }
-    setTextColorTransparent(BLACK);
-    setCursor(0,3*HEIGHT/4);
-    Outstr("In");
-    setTextColorTransparent(BLACK);
-    setCursor(0,3*HEIGHT/4+8);
-    Outstr("sequence...");
-
-
-    acceptingUserInput = 1;
-    answerTracker = 0;
-
-    while (acceptingUserInput){
-        if (decodingIndex == EXPECTEDFALLINGEDGES){
-            decodingIndex = 0;
-            SysTickDisable();
-            GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
-            int ButtonResult = evaluateCapturedPulses();
-            int validAnswer = 1;
 
             if (ButtonResult == 2){ //Up arrow
                 drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-                if (round1[answerTracker] == 0){
+                if (roundAnswers[answerTracker] == 0){
                     playerScore += 100;
                     correctAnswers +=1;
 
@@ -1218,16 +987,17 @@ void memoryGame(){
                 }
             } else if (ButtonResult == 4){ //Left arrow
                 drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-                if (round1[answerTracker] == 2){
+                if (roundAnswers[answerTracker] == 2){
                     playerScore += 100;
                     correctAnswers +=1;
+
                 }
                 else{
                     playerScore -= 100;
                 }
             } else if (ButtonResult == 6){ //Right arrow
                 drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-                if (round1[answerTracker] == 3){
+                if (roundAnswers[answerTracker] == 3){
                     playerScore += 100;
                     correctAnswers +=1;
 
@@ -1237,7 +1007,7 @@ void memoryGame(){
                 }
             } else if (ButtonResult == 8){ //Down arrow
                 drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-                if (round1[answerTracker] == 1){
+                if (roundAnswers[answerTracker] == 1){
                     playerScore += 100;
                     correctAnswers +=1;
 
@@ -1258,117 +1028,7 @@ void memoryGame(){
                 drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
                 drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
                 answerTracker += 1;
-                if (answerTracker == 5){
-                    acceptingUserInput = 0;
-                }
-            }
-
-
-        }
-
-    }
-
-    //Round 3
-    setCursor(0,3*HEIGHT/4);
-    Outstr("In");
-    setCursor(0,3*HEIGHT/4+8);
-    Outstr("sequence...");
-    i = 0;
-
-    for (i = 0; i<7; i++){
-        if (round2[i] == 0){
-            drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(61,HEIGHT/4-8, 24,BLACK,BLACK,2);
-        } else if (round2[i] == 1){
-            drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(61,3*HEIGHT/4-8, 25,BLACK,BLACK,2);
-        } else if (round2[i] == 2){
-            drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
-        } else if (round2[i] == 3){
-            drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-            MAP_UtilsDelay(10000000);
-            drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
-        }
-        MAP_UtilsDelay(10000000);
-    }
-    setTextColorTransparent(BLACK);
-    setCursor(0,3*HEIGHT/4);
-    Outstr("In");
-    setTextColorTransparent(BLACK);
-    setCursor(0,3*HEIGHT/4+8);
-    Outstr("sequence...");
-
-
-    acceptingUserInput = 1;
-    answerTracker = 0;
-
-    while (acceptingUserInput){
-        if (decodingIndex == EXPECTEDFALLINGEDGES){
-            decodingIndex = 0;
-            SysTickDisable();
-            GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
-            int ButtonResult = evaluateCapturedPulses();
-            int validAnswer = 1;
-
-
-            if (ButtonResult == 2){ //Up arrow
-                drawChar(61,HEIGHT/4-8, 24,WHITE,BLACK,2);
-                if (round2[answerTracker] == 0){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 4){ //Left arrow
-                drawChar(19,HEIGHT/2-8,27,WHITE,BLACK,2);
-                if (round2[answerTracker] == 2){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 6){ //Right arrow
-                drawChar(103,HEIGHT/2-8,26,WHITE,BLACK,2);
-                if (round2[answerTracker] == 3){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else if (ButtonResult == 8){ //Down arrow
-                drawChar(61,3*HEIGHT/4-8, 25,WHITE,BLACK,2);
-                if (round2[answerTracker] == 1){
-                    playerScore += 100;
-                    correctAnswers +=1;
-
-                }
-                else{
-                    playerScore -= 100;
-                }
-            } else{
-                validAnswer = 0;
-            }
-
-            if (validAnswer){
-                MAP_UtilsDelay(10000000);
-                updateScore();
-                //Erase whatever arrow was drawn
-                drawChar(61,HEIGHT/4-8, 24,BLACK,BLACK,2);
-                drawChar(61,3*HEIGHT/4-8, 25,BLACK,BLACK,2);
-                drawChar(19,HEIGHT/2-8,27,BLACK,BLACK,2);
-                drawChar(103,HEIGHT/2-8,26,BLACK,BLACK,2);
-                answerTracker += 1;
-                if (answerTracker == 7){
+                if (answerTracker == 10){
                     acceptingUserInput = 0;
                 }
             }
@@ -1379,7 +1039,7 @@ void memoryGame(){
     }
 
     char correctStr[50];
-    sprintf(correctStr, "%i/15", correctAnswers);
+    sprintf(correctStr, "%i/10", correctAnswers);
     setCursor(WIDTH/2-12,HEIGHT/2);
     Outstr(correctStr);
 
@@ -1401,8 +1061,6 @@ void treasureHunt(){
     int treasureY = generateRandomNumber(8,120);
     int timesWon = 0;
     int numberofDigs = 0;
-    UART_PRINT("%i, %i", treasureX, treasureY);
-
 
     int ballX = WIDTH/2;
     int ballY = HEIGHT/2;
@@ -1522,14 +1180,10 @@ void treasureHunt(){
     Outstr("3 treasures");
     MAP_UtilsDelay(30000000);
 
-
-
 }
 
 
 void leaderBoardSubmission(){
-
-
     fillScreen(BLACK);
     setCursor(0,0);
     Outstr("Leaderboard Entry");
@@ -1558,13 +1212,141 @@ void leaderBoardSubmission(){
 
     }
 
-    //End of program
     fillScreen(BLACK);
 
 
 
 }
 
+//Ball should start at center
+int ballDropX = WIDTH/2;
+int ballDropY = HEIGHT/2;
+
+int goalX = WIDTH/2;
+int goalY = HEIGHT - 20;
+
+int scoreCounter = 0;
+int goalSwitch = 0;
+
+
+void ballDrop() {
+    fillScreen(BLACK);
+    setCursor(19, 0);
+    Outstr("Drop in the Goal!");
+    updateScore();
+    while(1) {
+        if(scoreCounter == 15) {
+            break;
+        }
+
+        if(goalSwitch == 0) {
+            drawGoalBottom(goalX, goalY, 10, 10, BLUE);
+        }
+        else if(goalSwitch == 2) {
+            drawGoalLeft(goalX, goalY, 10, 10, BLUE);
+        }
+        else if(goalSwitch == 1) {
+            drawGoalTop(goalX, goalY, 10, 10, BLUE);
+        }
+        else {
+            drawGoalRight(goalX, goalY, 10, 10, BLUE);
+        }
+
+        drawBall(ballDropX, ballDropY);
+
+        //Save to erase later
+        unsigned char oldX = ballDropX;
+        unsigned char oldY = ballDropY;
+
+        //Both are the same exact process/lines of code from the i2c_demo file for reading from a register.
+        //Reading from the x offset register
+        I2C_IF_Write(dvcAdr,&dvcRegOffSetX,1,0);
+        I2C_IF_Read(dvcAdr, &rdDataBufX[0], 1);
+        //Reading from the y offset register
+        I2C_IF_Write(dvcAdr,&dvcRegOffSetY,1,0);
+        I2C_IF_Read(dvcAdr, &rdDataBufY[0], 1);
+        int dx = calculateDelta(rdDataBufX[0]);
+        int dy = calculateDelta(rdDataBufY[0]);
+
+
+        //Prevent movement out of the screen and prevents the ball from partially going off screen
+        ballDropX = ballDropX + dx;
+        if(ballDropX > WIDTH - BALLRADIUS) {
+            ballDropX = WIDTH - BALLRADIUS;
+            scoreCounter++;
+            ballDropX = WIDTH/2;
+            ballDropY = HEIGHT/2;
+            playerScore -= 100;
+            updateScore();
+        }
+        if(ballDropX < BALLRADIUS) {
+            ballDropX = BALLRADIUS;
+            scoreCounter++;
+            ballDropX = WIDTH/2;
+            ballDropY = HEIGHT/2;
+            playerScore -= 100;
+            updateScore();
+        }
+
+        ballDropY = ballDropY + dy;
+        if(ballDropY > HEIGHT - BALLRADIUS - 12) {
+            ballDropY = HEIGHT - BALLRADIUS - 12;
+            scoreCounter++;
+            ballDropX = WIDTH/2;
+            ballDropY = HEIGHT/2;
+            playerScore -= 100;
+            updateScore();
+        }
+        if(ballDropY < BALLRADIUS + 12) {
+            ballDropY = BALLRADIUS + 12;
+            scoreCounter++;
+            ballDropX = WIDTH/2;
+            ballDropY = HEIGHT/2;
+            playerScore -= 100;
+            updateScore();
+        }
+
+        //Erasing the ball at the old location
+        eraseBall(oldX, oldY);
+
+        if((ballDropX < (goalX + 8) && ballDropX > (goalX - 8)) && (ballDropY < (goalY + 8) && ballDropY > (goalY - 8))) {
+            playerScore += 100;
+            updateScore();
+
+            ballDropX = WIDTH/2;
+            ballDropY = HEIGHT/2;
+            scoreCounter++;
+            if(goalSwitch == 0) { //Removes bottom goal, makes top goal
+                drawGoalBottom(goalX, goalY, 10, 10, BLACK);
+                goalSwitch = 1;
+                goalY = 10;
+                goalX = WIDTH/2;
+            }
+            else if (goalSwitch == 1) { //Removes top goal, makes right goal
+                drawGoalTop(goalX, goalY, 10, 10, BLACK);
+                goalSwitch = 3;
+                goalX = WIDTH - 10;
+                goalY = HEIGHT/2;
+            }
+            else if(goalSwitch == 3) { //Removes right goal, makes left goal
+                drawGoalRight(goalX, goalY, 10, 10, BLACK);
+                goalSwitch = 2;
+                goalX = 10;
+                goalY = HEIGHT/2;
+
+            }
+            else { //Removes left goal, makes bottom goal
+                drawGoalLeft(goalX, goalY, 10, 10, BLACK);
+                goalSwitch = 0;
+                goalY = HEIGHT - 20;
+                goalX = WIDTH/2;
+            }
+        }
+    }
+
+    fillScreen(BLACK);
+
+}
 
 void createControllerLogo(){
     fillRect(12,24, 6, 6, WHITE);
@@ -1599,9 +1381,7 @@ void createControllerLogo(){
     fillRect(102,60, 6, 6, WHITE);
     fillRect(96,66, 6, 6, WHITE);
     fillRect(30,66, 6, 6, WHITE);
-    //fillRect(36,66, 6, 6, WHITE);
     fillRect(90,66, 6, 6, WHITE);
-    //fillRect(84,66, 6, 6, WHITE;
     fillRect(36,60, 6, 6, WHITE);
     fillRect(42,54, 6, 6, WHITE);
     fillRect(84,60, 6, 6, WHITE);
@@ -1621,18 +1401,10 @@ void createControllerLogo(){
 
 void initMainMenu(){
     fillScreen(BLACK);
-
-
-
     createControllerLogo();
-
     setCursor(18, HEIGHT - 50);
     setTextSize(1);
     Outstr("Embedded Games");
-
-
-
-
     setTextSize(1);
     setCursor(0,HEIGHT - 35);
     Outstr("Play Games");
@@ -1642,16 +1414,12 @@ void initMainMenu(){
     setCursor(0,HEIGHT - 16);
     Outstr("2");
     drawChar(8, HEIGHT - 16, 24, WHITE, BLACK, 1);
-
     setCursor(0,HEIGHT - 8);
     Outstr("8");
     drawChar(8, HEIGHT - 8, 25, WHITE, BLACK, 1);
-
     setCursor(WIDTH - 72,HEIGHT - 12);
     Outstr("Mute = Enter");
-
     setCursor(0,0);
-
     decodingIndex = 0;
     int mainMenuIndex = 0;
     playerScore = 0;
@@ -1663,7 +1431,6 @@ void initMainMenu(){
             GPIOIntDisable(IR_GPIO_PORT, IR_GPIO_PIN);
             int ButtonResult = evaluateCapturedPulses();
             if (ButtonResult == 2 || ButtonResult == 8){
-                //Must change this if we have more options
                 if (mainMenuIndex == 0){
                     mainMenuIndex = 1;
                     drawChar(60, HEIGHT - 35, '<', BLACK, BLACK, 1);
@@ -1679,27 +1446,18 @@ void initMainMenu(){
 
             if (ButtonResult == 11){
                 if (mainMenuIndex == 0){
+                    ballDrop();
                     accelCarMinigame();
                     passwordMinigame();
                     memoryGame();
                     treasureHunt();
                     leaderBoardSubmission();
-
-
                 }
                 else if (mainMenuIndex == 1){
-                    //View leaderboard logic
-
                     viewInstructions();
                 }
             }
-
-
-
         }
-
-
-
     }
 }
 
@@ -1707,48 +1465,58 @@ void initMainMenu(){
 void viewInstructions(){
 
     fillScreen(BLACK);
-    setCursor(0,HEIGHT - 8);
-    Outstr("Main Menu");
-    drawChar(0,HEIGHT - 16,27,WHITE,BLACK,1);
-    drawChar(8,HEIGHT - 16,'0',WHITE,BLACK,1);
+
 
     setCursor(0,0);
     setTextColorTransparent(YELLOW);
-    Outstr("Dodge the cars!");
-    setCursor(0,8);
+    Outstr("Drop in the goal!");
     setTextColorTransparent(WHITE);
+    setCursor(0,8);
     Outstr("Tilt accelerometer");
     setCursor(0,16);
-    Outstr("up/down to dodge cars");
+    Outstr("to goals");
 
     setCursor(0,24);
     setTextColorTransparent(YELLOW);
-    Outstr("Guess the code");
+    Outstr("Dodge the cars!");
     setCursor(0,32);
     setTextColorTransparent(WHITE);
-    Outstr("Mute/Last Left/Right");
+    Outstr("Tilt accelerometer");
     setCursor(0,40);
-    Outstr("0 enter 1-9 input");
+    Outstr("up/down to dodge cars");
 
     setCursor(0,48);
     setTextColorTransparent(YELLOW);
-    Outstr("Memorize arrows");
+    Outstr("Guess the code");
     setCursor(0,56);
     setTextColorTransparent(WHITE);
-    Outstr("Up=2 Down=8");
+    Outstr("Mute/Last Left/Right");
     setCursor(0,64);
-    Outstr("Left=4 Right=6");
+    Outstr("0 enter 1-9 input");
 
     setCursor(0,72);
     setTextColorTransparent(YELLOW);
-    Outstr("Treasure Hunt!");
+    Outstr("Memorize arrows");
     setCursor(0,80);
     setTextColorTransparent(WHITE);
-    Outstr("Tilt accelerometer");
+    Outstr("Up=2 Down=8");
     setCursor(0,88);
+    Outstr("Left=4 Right=6");
+
+    setCursor(0,96);
+    setTextColorTransparent(YELLOW);
+    Outstr("Treasure Hunt!");
+    setCursor(0,104);
+    setTextColorTransparent(WHITE);
+    Outstr("Tilt accelerometer");
+    setCursor(0,112);
     Outstr("Mute to scan");
 
 
+    drawChar(0,HEIGHT - 8,27,WHITE,BLACK,1);
+    drawChar(8,HEIGHT - 8,'0',WHITE,BLACK,1);
+    setCursor(16,HEIGHT - 8);
+    Outstr("Main Menu");
     while (1){
         if (decodingIndex == EXPECTEDFALLINGEDGES){
             decodingIndex = 0;
@@ -1765,13 +1533,8 @@ void viewInstructions(){
     }
 }
 
-
-
-
 void main() {
-    //
-    // Initialize board configuration
-    //
+
     BoardInit();
 
     PinMuxConfig();
@@ -1792,118 +1555,4 @@ void main() {
 
 
 
-}
-
-//*****************************************************************************
-//
-// Close the Doxygen group.
-//! @}
-//
-//*****************************************************************************
-
-
-
-
-static int http_post(int iTLSSockID){
-    char acSendBuff[512];
-    char acRecvbuff[1460];
-    char cCLLength[200];
-    char* pcBufHeaders;
-    int lRetVal = 0;
-
-    pcBufHeaders = acSendBuff;
-    strcpy(pcBufHeaders, POSTHEADER);
-    pcBufHeaders += strlen(POSTHEADER);
-    strcpy(pcBufHeaders, HOSTHEADER);
-    pcBufHeaders += strlen(HOSTHEADER);
-    strcpy(pcBufHeaders, CHEADER);
-    pcBufHeaders += strlen(CHEADER);
-    strcpy(pcBufHeaders, "\r\n\r\n");
-
-    int dataLength = strlen(DATA1);
-
-    strcpy(pcBufHeaders, CTHEADER);
-    pcBufHeaders += strlen(CTHEADER);
-    strcpy(pcBufHeaders, CLHEADER1);
-
-    pcBufHeaders += strlen(CLHEADER1);
-    sprintf(cCLLength, "%d", dataLength);
-
-    strcpy(pcBufHeaders, cCLLength);
-    pcBufHeaders += strlen(cCLLength);
-    strcpy(pcBufHeaders, CLHEADER2);
-    pcBufHeaders += strlen(CLHEADER2);
-
-    strcpy(pcBufHeaders, DATA1);
-    pcBufHeaders += strlen(DATA1);
-
-    int testDataLength = strlen(pcBufHeaders);
-
-    UART_PRINT(acSendBuff);
-
-
-    //
-    // Send the packet to the server */
-    //
-    lRetVal = sl_Send(iTLSSockID, acSendBuff, strlen(acSendBuff), 0);
-    if(lRetVal < 0) {
-        UART_PRINT("POST failed. Error Number: %i\n\r",lRetVal);
-        sl_Close(iTLSSockID);
-        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-        return lRetVal;
-    }
-    lRetVal = sl_Recv(iTLSSockID, &acRecvbuff[0], sizeof(acRecvbuff), 0);
-    if(lRetVal < 0) {
-        UART_PRINT("Received failed. Error Number: %i\n\r",lRetVal);
-        //sl_Close(iSSLSockID);
-        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-        return lRetVal;
-    }
-    else {
-        acRecvbuff[lRetVal+1] = '\0';
-        UART_PRINT(acRecvbuff);
-        UART_PRINT("\n\r\n\r");
-    }
-
-    return 0;
-}
-
-static int http_get(int iTLSSockID){
-    char acSendBuff[512];
-    char acRecvbuff[1460];
-    char* pcBufHeaders;
-    int lRetVal = 0;
-
-    pcBufHeaders = acSendBuff;
-    strcpy(pcBufHeaders, GETHEADER);
-    pcBufHeaders += strlen(GETHEADER);
-    strcpy(pcBufHeaders, HOSTHEADER);
-    pcBufHeaders += strlen(HOSTHEADER);
-    strcpy(pcBufHeaders, CHEADER);
-    pcBufHeaders += strlen(CHEADER);
-    strcpy(pcBufHeaders, "\r\n\r\n");
-
-    // Send the packet to the server
-    lRetVal = sl_Send(iTLSSockID, acSendBuff, strlen(acSendBuff), 0);
-    if(lRetVal < 0) {
-        UART_PRINT("GET failed. Error Number: %i\n\r",lRetVal);
-        sl_Close(iTLSSockID);
-        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-        return lRetVal;
-    }
-
-    // Receive the response from the server
-    lRetVal = sl_Recv(iTLSSockID, &acRecvbuff[0], sizeof(acRecvbuff), 0);
-    if(lRetVal < 0) {
-        UART_PRINT("Received failed. Error Number: %i\n\r",lRetVal);
-        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-        return lRetVal;
-    }
-    else {
-        acRecvbuff[lRetVal+1] = '\0';
-        UART_PRINT(acRecvbuff);
-        UART_PRINT("\n\r\n\r");
-    }
-
-    return 0;
 }

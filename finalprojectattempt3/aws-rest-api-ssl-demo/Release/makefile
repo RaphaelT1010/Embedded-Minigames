@@ -14,7 +14,6 @@ ORDERED_OBJS += \
 "./Adafruit_OLED.obj" \
 "./i2c_if.obj" \
 "./main.obj" \
-"./oled_test.obj" \
 "./pin_mux_config.obj" \
 "./uart_if.obj" \
 "./utils/network_utils.obj" \
@@ -152,8 +151,8 @@ finalprojectattempt3.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Adafruit_GFX.obj" "Adafruit_OLED.obj" "i2c_if.obj" "main.obj" "oled_test.obj" "pin_mux_config.obj" "uart_if.obj" "utils\network_utils.obj" 
-	-$(RM) "Adafruit_GFX.d" "Adafruit_OLED.d" "i2c_if.d" "main.d" "oled_test.d" "pin_mux_config.d" "uart_if.d" "utils\network_utils.d" 
+	-$(RM) "Adafruit_GFX.obj" "Adafruit_OLED.obj" "i2c_if.obj" "main.obj" "pin_mux_config.obj" "uart_if.obj" "utils\network_utils.obj" 
+	-$(RM) "Adafruit_GFX.d" "Adafruit_OLED.d" "i2c_if.d" "main.d" "pin_mux_config.d" "uart_if.d" "utils\network_utils.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
