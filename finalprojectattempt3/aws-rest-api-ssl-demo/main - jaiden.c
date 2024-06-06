@@ -414,7 +414,7 @@ static int postCustomEmail(int iTLSSockID){
     int lRetVal = 0;
 
     char textForJson[50];
-    sprintf(textForJson, "Name: %s Score %i", bufferToSend, playerScore);
+    sprintf(textForJson, "Player: %s Score: %i", bufferToSend, playerScore);
     const char* JSONtoSend = addTextToJSON(textForJson);
 
     //UART_PRINT("\r\n\nResulting JSON: \r\n\n");
@@ -878,7 +878,7 @@ int ballDropX = WIDTH/2;
 int ballDropY = HEIGHT/2;
 
 int goalX = WIDTH/2;
-int goalY = HEIGHT - 10;
+int goalY = HEIGHT - 20;
 
 int scoreCounter = 0;
 int goalSwitch = 0;
@@ -889,7 +889,6 @@ void ballDrop() {
     Outstr("Drop in the Goal!");
     updateScore();
     while(1) {
-        Outstr("Drop in the Goal!");
         if(scoreCounter == 15) {
             break;
         }
@@ -993,7 +992,7 @@ void ballDrop() {
             else { //Removes left goal, makes bottom goal
                 drawGoalLeft(goalX, goalY, 10, 10, BLACK);
                 goalSwitch = 0;
-                goalY = HEIGHT - 10;
+                goalY = HEIGHT - 20;
                 goalX = WIDTH/2;
             }
         }
@@ -1815,6 +1814,7 @@ void initMainMenu(){
                     leaderBoardSubmission();
 
 
+
                 }
                 else if (mainMenuIndex == 1){
                     //View leaderboard logic
@@ -1836,46 +1836,58 @@ void initMainMenu(){
 void viewInstructions(){
 
     fillScreen(BLACK);
-    setCursor(0,HEIGHT - 8);
-    Outstr("Main Menu");
-    drawChar(0,HEIGHT - 16,27,WHITE,BLACK,1);
-    drawChar(8,HEIGHT - 16,'0',WHITE,BLACK,1);
+
 
     setCursor(0,0);
     setTextColorTransparent(YELLOW);
-    Outstr("Dodge the cars!");
-    setCursor(0,8);
+    Outstr("Drop in the goal!");
     setTextColorTransparent(WHITE);
+    setCursor(0,8);
     Outstr("Tilt accelerometer");
     setCursor(0,16);
-    Outstr("up/down to dodge cars");
+    Outstr("to goals");
 
     setCursor(0,24);
     setTextColorTransparent(YELLOW);
-    Outstr("Guess the code");
+    Outstr("Dodge the cars!");
     setCursor(0,32);
     setTextColorTransparent(WHITE);
-    Outstr("Mute/Last Left/Right");
+    Outstr("Tilt accelerometer");
     setCursor(0,40);
-    Outstr("0 enter 1-9 input");
+    Outstr("up/down to dodge cars");
 
     setCursor(0,48);
     setTextColorTransparent(YELLOW);
-    Outstr("Memorize arrows");
+    Outstr("Guess the code");
     setCursor(0,56);
     setTextColorTransparent(WHITE);
-    Outstr("Up=2 Down=8");
+    Outstr("Mute/Last Left/Right");
     setCursor(0,64);
-    Outstr("Left=4 Right=6");
+    Outstr("0 enter 1-9 input");
 
     setCursor(0,72);
     setTextColorTransparent(YELLOW);
-    Outstr("Treasure Hunt!");
+    Outstr("Memorize arrows");
     setCursor(0,80);
     setTextColorTransparent(WHITE);
-    Outstr("Tilt accelerometer");
+    Outstr("Up=2 Down=8");
     setCursor(0,88);
+    Outstr("Left=4 Right=6");
+
+    setCursor(0,96);
+    setTextColorTransparent(YELLOW);
+    Outstr("Treasure Hunt!");
+    setCursor(0,104);
+    setTextColorTransparent(WHITE);
+    Outstr("Tilt accelerometer");
+    setCursor(0,112);
     Outstr("Mute to scan");
+
+
+    drawChar(0,HEIGHT - 8,27,WHITE,BLACK,1);
+    drawChar(8,HEIGHT - 8,'0',WHITE,BLACK,1);
+    setCursor(16,HEIGHT - 8);
+    Outstr("Main Menu");
 
 
     while (1){
