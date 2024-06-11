@@ -194,12 +194,12 @@ extern void (* const g_pfnVectors[])(void);
 
 #define APPLICATION_NAME      "SSL"
 #define APPLICATION_VERSION   "SQ24"
-#define SERVER_NAME           "a26zw5y3aclr3e-ats.iot.eu-central-1.amazonaws.com" // CHANGE ME
+#define SERVER_NAME           "" // CHANGE ME
 #define GOOGLE_DST_PORT       8443
 
-#define GETHEADER "GET /things/jaiden_cc3200_board_email/shadow HTTP/1.1\r\n"
-#define POSTHEADER "POST /things/jaiden_cc3200_board_email/shadow HTTP/1.1\r\n"             // CHANGE ME
-#define HOSTHEADER "Host: a26zw5y3aclr3e-ats.iot.eu-central-1.amazonaws.com\r\n"  // CHANGE ME
+#define GETHEADER "GET \r\n"
+#define POSTHEADER "POST \r\n"             // CHANGE ME
+#define HOSTHEADER "Host: amazonaws.com\r\n"  // CHANGE ME
 #define CHEADER "Connection: Keep-Alive\r\n"
 #define CTHEADER "Content-Type: application/json; charset=utf-8\r\n"
 #define CLHEADER1 "Content-Length: "
