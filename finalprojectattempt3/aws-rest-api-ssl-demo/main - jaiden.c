@@ -197,9 +197,9 @@ extern void (* const g_pfnVectors[])(void);
 #define SERVER_NAME           "" // CHANGE ME
 #define GOOGLE_DST_PORT       8443
 
-#define GETHEADER "GET \r\n"
-#define POSTHEADER "POST \r\n"             // CHANGE ME
-#define HOSTHEADER "Host: amazonaws.com\r\n"  // CHANGE ME
+#define GETHEADER "GET "
+#define POSTHEADER "POST "             // CHANGE ME
+#define HOSTHEADER "Host: "  // CHANGE ME
 #define CHEADER "Connection: Keep-Alive\r\n"
 #define CTHEADER "Content-Type: application/json; charset=utf-8\r\n"
 #define CLHEADER1 "Content-Length: "
