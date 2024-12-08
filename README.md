@@ -1,6 +1,6 @@
 # Embedded Minigames Project
 
-The **"Embedded Minigames"** project is a collection of minigames developed using technologies learned throughout the quarter in EEC 172 (Embedded Systems). The core hardware and technologies include:
+The **"Embedded Minigames"** project is a collection of minigames developed using technologies learned throughout my quarter in EEC 172 (Embedded Systems) during my UC Davis Enrollment. The core hardware and technologies include:
 
 - **CC3200 Microcontroller**: Central hub for communication between components.
 - **Adafruit OLED Breakout Board**: Displays the graphical interface for games and menus.
