@@ -32,7 +32,7 @@ The **"Embedded Minigames"** project is a collection of minigames developed usin
 
 ---
 
-This project showcases the integration of embedded systems hardware and software development. A CC3200 Launchpad was used as the core component.
+This project showcases the integration of embedded systems hardware and software development. Hardware/software debugging and troubleshooting was paramount.
 
 Project Website: https://sites.google.com/ucdavis.edu/eec172-embedded-games
 
