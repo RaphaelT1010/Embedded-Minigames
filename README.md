@@ -18,11 +18,12 @@ The **"Embedded Games"** project is a collection of minigames developed using te
 - A main menu provides two options:
   - **Play Games**: Starts the game sequence.
   - **How to Play**: Displays instructions. Can go back to Main Menu if desired.
-  - **Minigame Function Call**: A predetermined sequence of minigame function calls now starts
-- Scores are updated dynamically, with a prompt at the end for name entry and leaderboard submission.
+  - 
+- Minigame Function Call: A predetermined sequence of minigame function calls now starts
+- Scores are updated dynamically, with a prompt at the end for name entry and leaderboard submission using Amazon Web Services, email forwarding, and ServiceNow®.
 
 ### 3. Leaderboard Integration
-- After gameplay, users can upload their score and name via HTTP POST requests using Amazon Web Services (AWS), enabling display on a web-based leaderboard. This was accomplished by using ServiceNow as a record keeping platform.
+- After gameplay, users can upload their score and name via HTTP POST requests using Amazon Web Services (AWS), enabling display on a web-based leaderboard. This was accomplished by using ServiceNow® as a record keeping platform.
 
 ### 4. Usage
 - The device is portable and requires only a USB power source.
