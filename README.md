@@ -14,21 +14,24 @@ The **"Embedded Games"** project is a collection of minigames developed using te
 - Games are played using either tilt controls (accelerometer), remote buttons, or a combination of both.
 - Graphics and interface are implemented using the Adafruit GFX library, with communication via SPI and I2C protocols.
 
-### 2. Graphical User Interface (GUI)
+### 2. User Flow
 - A main menu provides two options:
   - **Play Games**: Starts the game sequence.
-  - **How to Play**: Displays instructions.
+  - **How to Play**: Displays instructions. Can go back to Main Menu if desired.
+  - **Minigame Function Call**: A predetermined sequence of minigame function calls now starts
 - Scores are updated dynamically, with a prompt at the end for name entry and leaderboard submission.
 
 ### 3. Leaderboard Integration
-- After gameplay, users can upload their score and name via HTTP POST requests to AWS, enabling display on a web-based leaderboard.
+- After gameplay, users can upload their score and name via HTTP POST requests using Amazon Web Services (AWS), enabling display on a web-based leaderboard. This was accomplished by using ServiceNow as a record keeping platform.
 
 ### 4. Usage
 - The device is portable and requires only a USB power source.
+- However, the breadboard and proper hardware peripherals must be wired properly. (A bill of materials is listed on project website)
 - To restart, users must either recompile the program or replug the device after completion.
 
 ---
 
-This project showcases the integration of embedded systems hardware and software development.
+This project showcases the integration of embedded systems hardware and software development. A CC3200 Launchpad was used as the core component.
 
 Website URL: https://sites.google.com/ucdavis.edu/eec172-embedded-games
+
