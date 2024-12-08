@@ -1,6 +1,6 @@
 # Embedded Games Project
 
-The **"Embedded Games"** project is a collection of minigames developed using technologies learned throughout the quarter. The core hardware and technologies include:
+The **"Embedded Games"** project is a collection of minigames developed using technologies learned throughout the quarter in EEC 172 (Embedded Systems). The core hardware and technologies include:
 
 - **CC3200 Microcontroller**: Central hub for communication between components.
 - **Adafruit OLED Breakout Board**: Displays the graphical interface for games and menus.
@@ -26,7 +26,7 @@ The **"Embedded Games"** project is a collection of minigames developed using te
 
 ### 4. Usage
 - The device is portable and requires only a USB power source.
-- However, the breadboard and proper hardware peripherals must be wired properly. (A bill of materials is listed on project website)
+- However, the breadboard and proper hardware peripherals must be wired properly. (Full list above and bill of materials is listed on project website)
 - To restart, users must either recompile the program or replug the device after completion.
 
 ---
