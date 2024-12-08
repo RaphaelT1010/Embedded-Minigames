@@ -18,8 +18,8 @@ The **"Embedded Minigames"** project is a collection of minigames developed usin
 - A main menu provides two options:
   - **Play Games**: Starts the game sequence.
   - **How to Play**: Displays instructions. Can go back to Main Menu if desired.
-  - 
 - Minigame Function Call: A predetermined sequence of minigame function calls now starts
+  -  Full list of minigames on project website.
 - Scores are updated dynamically, with a prompt at the end for name entry and leaderboard submission using Amazon Web Services, email forwarding, and ServiceNow®.
 
 ### 3. Leaderboard Integration
@@ -34,5 +34,5 @@ The **"Embedded Minigames"** project is a collection of minigames developed usin
 
 This project showcases the integration of embedded systems hardware and software development. A CC3200 Launchpad was used as the core component.
 
-Website URL: https://sites.google.com/ucdavis.edu/eec172-embedded-games
+Project Website: https://sites.google.com/ucdavis.edu/eec172-embedded-games
 
